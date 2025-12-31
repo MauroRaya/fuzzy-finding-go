@@ -5,6 +5,17 @@ import (
 )
 
 func main() {
-	score, _ := Hamming("London", "Londen")
-	fmt.Println(score)
+	score, err := Hamming("London", "Londen")
+	if err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		fmt.Println("Score:", score)
+	}
+
+	score, err = Hamming("London", "Lndon")
+	if err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		fmt.Println("Score:", score)
+	}
 }
