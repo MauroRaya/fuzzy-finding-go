@@ -8,39 +8,21 @@ import (
 	"strings"
 )
 
-func getColumnIndex(scanner *bufio.Scanner, delim string, name string) int {
-	scanner.Scan()
-	row := scanner.Text()
-
-	cols := strings.Split(row, delim)
-
-	for idx, col := range cols {
-		if col == name {
-			return idx
-		}
-	}
-
-	return -1
-}
-
-func getSliceColumn(scanner *bufio.Scanner, index int) []string {
-	slice := make([]string, 0)
-
-	for scanner.Scan() {
-		row := scanner.Text()
-		values := strings.Split(row, ";")
-		slice = append(slice, values[index])
-	}
-
-	return slice
-}
-
-type FuzzyScore struct {
+type Match struct {
 	Key   string
-	Value int
+	Score int
+}
+
+// Not complete but thats fine
+type Row struct {
+	City    string
+	State   string
+	Capital string
 }
 
 func main() {
+	SEP := ";"
+
 	file, err := os.Open("data/BRAZIL_CITIES.csv")
 	if err != nil {
 		panic(err)
@@ -52,34 +34,35 @@ func main() {
 		}
 	}()
 
-	scanner := bufio.NewScanner(file)
-	idx := getColumnIndex(scanner, ";", "CITY")
-	cities := getSliceColumn(scanner, idx)
-
 	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Print("Type the name of a Brazilian city: ")
 	input, err := reader.ReadString('\n')
 	if err != nil {
 		panic(err)
 	}
 
-	scores := make([]FuzzyScore, 0)
+	input = strings.TrimSpace(input)
 
-	for _, city := range cities {
-		score := Hamming(input, city)
-		scores = append(scores, FuzzyScore{city, score})
+	scanner := bufio.NewScanner(file)
+	scanner.Scan() // Skip headers
+
+	matches := []Match{}
+	for scanner.Scan() {
+		values := strings.Split(scanner.Text(), SEP)
+		row := Row{
+			City: values[0],
+		}
+
+		score := Hamming(input, row.City)
+		matches = append(matches, Match{row.City, score})
 	}
 
-	sort.Slice(scores, func(i, j int) bool {
-		return scores[i].Value < scores[j].Value
+	sort.Slice(matches, func(i, j int) bool {
+		return matches[i].Score < matches[j].Score
 	})
 
-	limit := 20
-
-	for i, j := range scores {
-		fmt.Printf("%s %d\n", j.Key, j.Value)
-
-		if i == limit {
-			break
-		}
+	for _, match := range matches[:10] {
+		fmt.Printf("%s %d\n", match.Key, match.Score)
 	}
 }
