@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"math"
 )
 
-func Hamming(a, b string) (value int, err error) {
+func Hamming(a, b string) (value int) {
 	if len(a) != len(b) {
-		return math.MaxInt, fmt.Errorf("hamming: arguments must have same length")
+		return math.MaxInt
 	}
 
 	distance := 0
@@ -17,5 +16,5 @@ func Hamming(a, b string) (value int, err error) {
 		}
 	}
 
-	return distance, nil
+	return distance
 }

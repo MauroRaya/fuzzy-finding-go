@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -34,6 +35,11 @@ func getSliceColumn(scanner *bufio.Scanner, index int) []string {
 	return slice
 }
 
+type FuzzyScore struct {
+	Key   string
+	Value int
+}
+
 func main() {
 	file, err := os.Open("data/BRAZIL_CITIES.csv")
 	if err != nil {
@@ -47,9 +53,33 @@ func main() {
 	}()
 
 	scanner := bufio.NewScanner(file)
+	idx := getColumnIndex(scanner, ";", "CITY")
+	cities := getSliceColumn(scanner, idx)
 
-	idx := getColumnIndex(scanner, ";", "STATE")
-	slice := getSliceColumn(scanner, idx)
+	reader := bufio.NewReader(os.Stdin)
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		panic(err)
+	}
 
-	fmt.Println(slice)
+	scores := make([]FuzzyScore, 0)
+
+	for _, city := range cities {
+		score := Hamming(input, city)
+		scores = append(scores, FuzzyScore{city, score})
+	}
+
+	sort.Slice(scores, func(i, j int) bool {
+		return scores[i].Value < scores[j].Value
+	})
+
+	limit := 20
+
+	for i, j := range scores {
+		fmt.Printf("%s %d\n", j.Key, j.Value)
+
+		if i == limit {
+			break
+		}
+	}
 }
