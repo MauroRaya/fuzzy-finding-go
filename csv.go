@@ -23,7 +23,11 @@ type Scanner struct {
 func NewScannerCSV(r io.Reader, delim byte, sep string) Scanner {
 	reader := bufio.NewReader(r)
 
-	row, _ := reader.ReadString(delim)
+	row, err := reader.ReadString(delim)
+	if err != nil {
+		panic(err)
+	}
+
 	values := strings.Split(row, sep)
 
 	header := map[string]int{}
@@ -43,6 +47,10 @@ func (scanner *Scanner) Scan() bool {
 	row, err := scanner.Reader.ReadString(scanner.Delim)
 	if err == io.EOF {
 		return false
+	}
+
+	if err != nil {
+		panic(err)
 	}
 
 	values := strings.Split(row, scanner.Sep)
