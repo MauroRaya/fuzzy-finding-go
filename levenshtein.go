@@ -1,5 +1,7 @@
 package main
 
+import "slices"
+
 func Levenshtein(a, b string) float32 {
 	cache := make([][]float32, len(a)+1)
 	for i := range cache {
@@ -22,7 +24,7 @@ func Levenshtein(a, b string) float32 {
 				delete := cache[i-1][j]
 				replace := cache[i-1][j-1]
 
-				cache[i][j] = 1 + Min(insert, delete, replace)
+				cache[i][j] = 1 + slices.Min([]float32{insert, delete, replace})
 			}
 		}
 	}
