@@ -4,9 +4,9 @@ import (
 	"math"
 )
 
-func Hamming(a, b string) (value int) {
+func Hamming(a, b string) float32 {
 	if len(a) != len(b) {
-		return math.MaxInt
+		return math.MaxFloat32
 	}
 
 	distance := 0
@@ -16,5 +16,5 @@ func Hamming(a, b string) (value int) {
 		}
 	}
 
-	return distance
+	return float32(distance)
 }

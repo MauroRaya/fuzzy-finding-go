@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 )
 
 type Match struct {
 	Key   string
-	Score int
+	Score float32
 }
 
 func main() {
@@ -18,12 +19,15 @@ func main() {
 	}
 	defer file.Close()
 
+	col := strings.ToUpper(os.Args[1])
+	input := os.Args[2]
+
 	scanner := NewScannerCSV(file, '\n', ";")
 
 	matches := []Match{}
 	for scanner.Scan() {
-		text := scanner.Text("CITY")
-		score := Hamming("São Paulo", text)
+		text := scanner.Text(col)
+		score := Levenshtein(input, text)
 		matches = append(matches, Match{text, score})
 	}
 
@@ -32,6 +36,6 @@ func main() {
 	})
 
 	for _, match := range matches[:20] {
-		fmt.Printf("%s %d\n", match.Key, match.Score)
+		fmt.Printf("%s %f\n", match.Key, match.Score)
 	}
 }
